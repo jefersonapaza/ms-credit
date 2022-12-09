@@ -1,8 +1,12 @@
 package com.nttdata.bootcamp.bankaccount.mscredit.controller;
 
 import com.nttdata.bootcamp.bankaccount.mscredit.bean.CreditBean;
+import com.nttdata.bootcamp.bankaccount.mscredit.dto.CreditDTO;
 import com.nttdata.bootcamp.bankaccount.mscredit.service.ICreditService;
+import com.nttdata.bootcamp.bankaccount.mscredit.service.external.ICustomerService;
+import com.nttdata.bootcamp.bankaccount.mscredit.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,26 +16,46 @@ import reactor.core.publisher.Mono;
 public class CreditController {
 
     @Autowired
-    private ICreditService service;
+    private ICreditService creditService;
 
-    @PostMapping("save")
+
+    @PostMapping("/save")
     public Mono<CreditBean> register(@RequestBody CreditBean account) {
-        return service.save(account);
+        return creditService.save(account);
     }
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public Flux<CreditBean> findAll() {
-        return service.findAll();
+        return creditService.findAll();
     }
 
-    @GetMapping("getByCustomer/{id}")
+    @GetMapping("/getByCustomer/{id}")
     public Flux<CreditBean> findByIdCustomer(@PathVariable("id")String id) {
-        return service.findAllByIdCustomer(id);
+        return creditService.findAllByIdCustomer(id);
     }
 
-    @PutMapping("customerSetCredit/{id}")
+    @PutMapping("/customerSetCredit/{id}")
     public Mono<CreditBean> setCredit(@RequestBody CreditBean account, @PathVariable("id")String id) {
         account.setId(id);
-        return service.save(account);
+        return creditService.save(account);
     }
+
+    @PostMapping(value = "/savePersonalCredit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<String> savePersonalCredit(@RequestBody CreditDTO creditDTO){
+        return creditDTO.validator()
+                .switchIfEmpty(creditService.savePersonalCredit(creditDTO));
+    }
+
+    @PostMapping(value = "/saveBusinessCredit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<String> saveBusinessCredit(@RequestBody CreditDTO creditDTO){
+        return creditDTO.validator()
+                .switchIfEmpty(creditService.saveBusinessCredit(creditDTO));
+    }
+
+
+
+
+
 }
