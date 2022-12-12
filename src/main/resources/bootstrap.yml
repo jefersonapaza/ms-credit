@@ -10,7 +10,7 @@ spring:
       port: 27017
       auto-index-creation: 'true'
       database: creditdb
-      host: localhost
+      host: mongodb
   application:
     name: ms-credit
   config:
